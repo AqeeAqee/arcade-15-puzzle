@@ -82,18 +82,6 @@ namespace NumberTiles {
     }
 }
 
-function forEach(consume: (i: number, skipNext: (n: number) => number) => void) {
-    for (let i = 0; i < 4; ++i) {
-        consume(i, (n: number) => i += n);
-    }
-}
-
-function forEachBackwards(consume: (i: number, skipNext: (n: number) => number) => void) {
-    for (let i = 3; i >= 0; --i) {
-        consume(i, (n: number) => i -= n);
-    }
-}
-
 function move(direction: Direction, animate: boolean): boolean {
     if (direction === Direction.UP) {
         return NumberTiles.move(NumberTiles.emptyTile.row + 1, NumberTiles.emptyTile.column, NumberTiles.emptyTile.row, NumberTiles.emptyTile.column, animate);
