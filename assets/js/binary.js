@@ -1,4 +1,4 @@
-// meta={"simUrl":"https://trg-arcade.userpxt.io/v0.17.10/---simulator","cdnUrl":"https://pxt.azureedge.net","version":"1.0.1","target":"arcade","targetVersion":"0.17.10","repo":"ractive/15-puzzle"}
+// meta={"simUrl":"https://trg-arcade.userpxt.io/v0.17.10/---simulator","cdnUrl":"https://pxt.azureedge.net","version":"1.0.2","target":"arcade","targetVersion":"0.17.10","repo":"ractive/15-puzzle"}
 // total=1454250 new=10.79% cached=83.95% other=5.26%
 (function (ectx) {
 'use strict';
@@ -452,7 +452,7 @@ const pxsim_pxtrt = pxsim.pxtrt;
 const pxsim_numops = pxsim.numops;
 
 
-function _main___P417002(s) {
+function _main___P417263(s) {
 let r0 = s.r0, step = s.pc;
 s.pc = -1;
 
@@ -955,13 +955,13 @@ switch (step) {
     return leave(s, r0)
   default: oops()
 } } }
-_main___P417002.info = {"start":0,"length":0,"line":0,"column":0,"endLine":0,"endColumn":0,"fileName":"main.ts","functionName":"<main>","argumentNames":[]}
-_main___P417002.continuations = [  ]
+_main___P417263.info = {"start":0,"length":0,"line":0,"column":0,"endLine":0,"endColumn":0,"fileName":"main.ts","functionName":"<main>","argumentNames":[]}
+_main___P417263.continuations = [  ]
 
-function _main___P417002_mk(s) {
+function _main___P417263_mk(s) {
     checkStack(s.depth);
     return {
-        parent: s, fn: _main___P417002, depth: s.depth + 1,
+        parent: s, fn: _main___P417263, depth: s.depth + 1,
         pc: 0, retval: undefined, r0: undefined, overwrittenPC: false, lambdaArgs: null,
   tmp_0: undefined,
   tmp_1: undefined,
@@ -49508,5 +49508,5 @@ const effects_SceneAnchor__C341138_VT = mkVTable({
 
 const breakpoints = setupDebugger(1, ["emptyTile___416199","backgroundImage___416231","shuffleLeft___416249","moveInProgress___416210","numberTiles___416197","lastDirection___416251"])
 
-return _main___P417002
+return _main___P417263
 })
