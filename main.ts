@@ -260,6 +260,55 @@ const backgroundImage = img`
 scene.setBackgroundImage(backgroundImage)
 
 NumberTiles.initTiles();
+pause(200);
+scene.cameraShake(5, 1000);
+pause(800);
+for (let i = 0; i < 200; ) {
+    if (randomMove()) {
+        ++i;
+   }
+}
+
+let shuffleLeft = 0;
+let lastDirection: Direction = null;
+
+function oppositeDirectionAsLastTime(direction: Direction): boolean {
+    return (direction === Direction.DOWN && lastDirection === Direction.UP) ||
+        (direction === Direction.UP && lastDirection === Direction.DOWN) ||
+        (direction === Direction.LEFT && lastDirection === Direction.RIGHT) ||
+        (direction === Direction.RIGHT && lastDirection === Direction.LEFT)
+    ;
+}
+
+function randomMove(): boolean {
+    let direction = Direction.UP;
+    do {
+        switch (randint(0, 3)) {
+            case 0: direction = Direction.UP; break;
+            case 1: direction = Direction.DOWN; break;
+            case 2: direction = Direction.LEFT; break;
+            case 3: direction = Direction.RIGHT; break;
+        }
+    } while(oppositeDirectionAsLastTime(direction));
+
+    lastDirection = direction;
+    return move(direction, false);
+}
+
+game.onUpdate(() => {
+    if (controller.A.isPressed() && controller.B.isPressed()) {
+        if (game.ask("Do you wanna shuffle?")) {
+            shuffleLeft = 100;
+        }
+    }
+
+    if (shuffleLeft > 0) {
+       if (randomMove()) {
+           --shuffleLeft;
+       }
+    }
+});
+
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.LEFT);
@@ -273,40 +322,3 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, () => {
 controller.down.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.DOWN);
 });
-
-let shuffleLeft = 0;
-let lastDirection: Direction = null;
-
-function oppositeDirectionAsLastTime(direction: Direction): boolean {
-    return (direction === Direction.DOWN && lastDirection === Direction.UP) ||
-        (direction === Direction.UP && lastDirection === Direction.DOWN) ||
-        (direction === Direction.LEFT && lastDirection === Direction.RIGHT) ||
-        (direction === Direction.RIGHT && lastDirection === Direction.LEFT)
-    ;
-}
-
-game.onUpdate(() => {
-    if (controller.A.isPressed() && controller.B.isPressed()) {
-        if (game.ask("Do you wanna shuffle?")) {
-            shuffleLeft = 100;
-        }
-    }
-
-    if (shuffleLeft > 0) {
-        let direction = Direction.UP;
-        do {
-            switch (randint(0, 3)) {
-                case 0: direction = Direction.UP; break;
-                case 1: direction = Direction.DOWN; break;
-                case 2: direction = Direction.LEFT; break;
-                case 3: direction = Direction.RIGHT; break;
-            }
-        } while(oppositeDirectionAsLastTime(direction));
-
-        lastDirection = direction;
-        if (move(direction, false)) {
-            --shuffleLeft;
-        }
-    }
-});
-

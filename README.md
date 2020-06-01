@@ -1,31 +1,10 @@
- 
+# 15-puzzle
 
+Bring the tiles in order, from 1 to 15 by moving them with the gamepad.
 
-> Open this page at [https://ractive.github.io/15-puzzle/](https://ractive.github.io/15-puzzle/)
+This is an implementaion of the classic [15-puzzle game](https://en.wikipedia.org/wiki/15_puzzle).
 
-## Use as Extension
-
-This repository can be added as an **extension** in MakeCode.
-
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/ractive/15-puzzle** and import
-
-## Edit this project ![Build status badge](https://github.com/ractive/15-puzzle/workflows/MakeCode/badge.svg)
-
-To edit this repository in MakeCode.
-
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/ractive/15-puzzle** and click import
-
-## Blocks preview
-
-This image shows the blocks code from the last commit in master.
-This image may take a few minutes to refresh.
-
-![A rendered view of the blocks](https://github.com/ractive/15-puzzle/raw/master/.github/makecode/blocks.png)
+Press both the A & B buttons to shuffle the tiles.
 
 #### Metadata (used for search, rendering)
 
