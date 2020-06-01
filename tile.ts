@@ -88,7 +88,6 @@ class Tile {
         }
         this._row = row;
         this._column = column;
-
     }
 
     private static colorFor(n: number): number {

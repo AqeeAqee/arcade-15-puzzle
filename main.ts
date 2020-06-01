@@ -26,6 +26,7 @@ namespace NumberTiles {
             set(toRow, toColumn, tile, animate);
             emptyTile.row = fromRow
             emptyTile.column = fromColumn;
+            numberTiles[fromRow][fromColumn] = null;
             return true;
         } else {
             return false;
@@ -60,6 +61,25 @@ namespace NumberTiles {
         emptyTile.column = 3;
     }
 
+    export function solved(): boolean {
+        let c = 1;
+        for (let row = 0; row < 4; ++row) {
+            for (let column = 0; column < 4; ++column) {
+                const tile = get(row, column);
+                if (!tile && c <= 15) {
+                    return false;
+                }
+                if (tile.n !== c) {
+                    return false;
+                }
+                if (c === 15) {
+                    return true;
+                }
+                ++c;
+            }
+        }
+        return true;
+    }
 }
 
 function forEach(consume: (i: number, skipNext: (n: number) => number) => void) {
@@ -92,7 +112,12 @@ function doMove(direction: Direction) {
     // The move must be finished, before another move can start
     if (!moveInProgress) {
         moveInProgress = true;
-        move(direction, true);
+        if (move(direction, true)) {
+            if (NumberTiles.solved()) {
+                pause(100);
+                game.over(true);
+            }
+        }
         moveInProgress = false;
     }
 }
