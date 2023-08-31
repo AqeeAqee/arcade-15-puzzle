@@ -1,8 +1,9 @@
 enum Direction { UP, DOWN, LEFT, RIGHT }
+const BOARD_X = 12, BOARD_Y = 4, GAP = 3, TILE_SIZE = 24
 
 namespace NumberTiles {
     const MaxTotalRow = 4
-    const MaxTotalCol = 4
+    const MaxTotalCol = 5
     export let totalRow = 4
     export let totalCol = 4
 
@@ -16,28 +17,28 @@ namespace NumberTiles {
     }
 
     export function initTiles() {
+        const INTERVAL = GAP + TILE_SIZE
+        const BOARD_WIDTH = INTERVAL * MaxTotalCol + GAP, BOARD_HEIGHT = INTERVAL * MaxTotalRow + GAP
         const bg = scene.backgroundImage()
-        const left = 25, top = 4
-        const gap = 3, tileSize = 24, interval = gap + tileSize, boardSize = interval * MaxTotalCol + gap
         bg.fill(13)
-        bg.fillRect(left, top, boardSize, boardSize, 15)
+        bg.fillRect(BOARD_X, BOARD_Y, BOARD_WIDTH, BOARD_HEIGHT, 15)
         let n = 1
         for (let i = 0; i < MaxTotalRow; i++) {
-            bg.fillRect(left + i * interval, top, gap, boardSize, 12)
-            bg.fillRect(left, top + i * interval, boardSize, gap, 12)
+            bg.fillRect(BOARD_X, BOARD_Y + i * INTERVAL, BOARD_WIDTH, GAP, 12)
             if (i < totalRow)
                 numberTiles.push([])
             for (let j = 0; j < MaxTotalCol; j++) {
+                bg.fillCircle(Tile.calcX(j), Tile.calcY(i), 5, 12)
                 if (i < totalRow && j < totalCol) {
                     numberTiles[i].push(null)
                     if (n != (totalCol * totalRow))
                         numberTiles[i][j] = new Tile(n++, i, j);
                 } else
-                    bg.fillCircle(left+gap+tileSize/2 + j * interval, top+gap+tileSize/2 + i * interval, 5, 12)
+                bg.fillRect(BOARD_X + j * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
             }
         }
-        bg.fillRect(left + MaxTotalCol * interval, top, gap, boardSize, 12)
-        bg.fillRect(left, top + MaxTotalRow * interval, boardSize, gap, 12)
+        bg.fillRect(BOARD_X + MaxTotalCol * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
+        bg.fillRect(BOARD_X, BOARD_Y + MaxTotalRow * INTERVAL, BOARD_WIDTH, GAP, 12)
 
         emptyRow = totalRow - 1
         emptyCol = totalCol - 1;
@@ -99,7 +100,7 @@ namespace NumberTiles {
         pause(200);
         scene.cameraShake(5, 500);
         pause(600);
-        let count=totalCol*totalRow*8
+        let count=(totalCol*totalRow)**2>>1
         while (count)
             if (randomMove())
                 --count;
@@ -110,11 +111,9 @@ namespace NumberTiles {
         // The move must be finished, before another move can start
         if (!moveInProgress) {
             moveInProgress = true;
-            if (moveDir(direction, true)) {
-                if (solved()) {
-                    pause(100);
-                    game.over(true, effects.confetti);
-                }
+            if (moveDir(direction, true) && solved()) {
+                pause(100);
+                game.over(true, effects.confetti);
             }
             moveInProgress = false;
         }
@@ -129,7 +128,9 @@ namespace NumberTiles {
             miniMenu.createMenuItem("  3 x 4  "),
             miniMenu.createMenuItem("  4 x 3  "),
             miniMenu.createMenuItem("  4 x 4  "),
+            miniMenu.createMenuItem("  4 x 5  "),
         )
+        myMenu.title =miniMenu.createMenuItem("15 Puzzle"),
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
             const dimension = itemTitle.split("x")
             NumberTiles.totalRow = parseInt(dimension[0])
@@ -143,7 +144,7 @@ namespace NumberTiles {
 
 NumberTiles.chooseDimension()
 NumberTiles.initTiles()
-NumberTiles.shuffle()
+// NumberTiles.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     NumberTiles.doMove(Direction.LEFT);

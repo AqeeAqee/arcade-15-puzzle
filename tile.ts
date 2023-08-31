@@ -3,23 +3,20 @@ const red = 2;
 const black = 15;
 
 class Tile {
-    public static readonly GRID_THICKNESS = 3;
-    public static readonly WIDTH = 24;
-    private static readonly OFFSET_X = 25;
-    private static readonly OFFSET_Y = 4;
     private _row: number;
     private _column: number;
     private _n: number;
     private sprite: Sprite;
+    static font = image.font8
 
     constructor(n: number, row: number, column: number) {
-        const animationImage = image.create(Tile.WIDTH, Tile.WIDTH);
+        const animationImage = image.create(TILE_SIZE, TILE_SIZE);
         this.sprite = sprites.create(animationImage);
         this.sprite.setPosition(Tile.calcX(column), Tile.calcY(row));
         const frames = 4;
         const step = animationImage.height / frames;
         for (let i = 0; i < frames; i++) {
-            animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, Tile.colorFor(n));
+            animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, Tile.bgColorFor(n));
             pause(10);
         }
         this.n = n;
@@ -27,12 +24,12 @@ class Tile {
         this._column = column;
     }
 
-    private static calcX(column: number): number {
-        return Tile.OFFSET_X + Tile.GRID_THICKNESS + Tile.WIDTH / 2 + column * (Tile.WIDTH + Tile.GRID_THICKNESS);
+    public static calcX(column: number): number {
+        return BOARD_X + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
     }
 
-    private static calcY(row: number): number {
-        return Tile.OFFSET_Y + Tile.GRID_THICKNESS + Tile.WIDTH / 2 + row *  (Tile.WIDTH + Tile.GRID_THICKNESS);
+    public static calcY(row: number): number {
+        return BOARD_Y + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
     }
 
     set n(n: number) {
@@ -94,26 +91,22 @@ class Tile {
         this._column = column;
     }
 
-    private static colorFor(n: number): number {
-        return (n % 2 + Math.floor((n - 1) / 4)) % 2 === 0 ? red : white;
+    private static colorFlip(n:number){
+        return (((n-1) % NumberTiles.totalCol + (n-1) / NumberTiles.totalCol)|0) % 2 === 1
+    }
+
+    private static bgColorFor(n: number): number {
+        return Tile.colorFlip(n) ? red : white;
     }
 
     private static textColorFor(n: number): number {
-        return (n % 2 + Math.floor((n - 1) / 4)) % 2 === 0 ? white : black;
-    }
-
-    private static print(n: number, img: Image, color: number) {
-        const text = "" + n;
-        const font = image.font5;
-        let w = text.length * font.charWidth;
-        let offset = (Tile.WIDTH - w) / 2 + 1;
-        img.print(text, offset, (img.height - font.charHeight) / 2, color, font)
+        return Tile.colorFlip(n) ? white : black;
     }
 
     private static createImage(n: number): Image {
-        const img = image.create(Tile.WIDTH, Tile.WIDTH);
-        img.fill(Tile.colorFor(n));
-        Tile.print(n, img, Tile.textColorFor(n))
+        const img = image.create(TILE_SIZE, TILE_SIZE);
+        img.fill(Tile.bgColorFor(n));
+        img.printCenter(n.toString(), (img.height - Tile.font.charHeight) >> 1, Tile.textColorFor(n), Tile.font)
         return img;
     }
 }
