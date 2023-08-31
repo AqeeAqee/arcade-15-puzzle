@@ -10,16 +10,14 @@ class Tile {
     static font = image.font8
 
     constructor(n: number, row: number, column: number) {
-        const animationImage = image.create(TILE_SIZE, TILE_SIZE);
-        this.sprite = sprites.create(animationImage);
+        this.sprite
+        this.n = n;
         this.sprite.setPosition(Tile.calcX(column), Tile.calcY(row));
         const frames = 4;
-        const step = animationImage.height / frames;
-        for (let i = 0; i < frames; i++) {
-            animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, Tile.bgColorFor(n));
+        for (let i = 0; i <= frames; i++) {
+            this.sprite.setScale(i/frames)
             pause(10);
         }
-        this.n = n;
         this._row = row;
         this._column = column;
     }
@@ -33,7 +31,10 @@ class Tile {
     }
 
     set n(n: number) {
-        this.sprite.setImage(Tile.createImage(n));
+        if(this.sprite)
+            this.sprite.setImage(Tile.createImage(n));
+        else
+            this.sprite = sprites.create(Tile.createImage(n))
         this._n = n;
     }
 
@@ -58,31 +59,11 @@ class Tile {
         const toX = Tile.calcX(column);
         const toY = Tile.calcY(row);
         if (animate) {
-            const pauseMs = 2;
-            if (row !== this._row || column !== this._column) {
-                if (row > this._row) {
-                    for (let y = this.sprite.y; y <= toY; y += 3) {
-                        this.sprite.setPosition(toX, y);
-                        pause(pauseMs);
-                    }
-                    
-                } else if (row < this._row) {
-                    for (let y = this.sprite.y; y >= toY; y -= 3) {
-                        this.sprite.setPosition(toX, y);
-                        pause(pauseMs);
-                    }
-                } else if (column > this._column) {
-                    for (let x = this.sprite.x; x <= toX; x += 3) {
-                        this.sprite.setPosition(x, toY);
-                        pause(pauseMs);
-                    }
-                    
-                } else if (column < this._column) {
-                    for (let x = this.sprite.x; x >= toX; x -= 3) {
-                        this.sprite.setPosition(x, toY);
-                        pause(pauseMs);
-                    }
-                }
+            const pauseMs = 2
+            const steps = 8, stepX = (toX - this.sprite.x) / 8, stepY = (toY - this.sprite.y) / 8
+            for (let i=0; i < steps;i++) {
+                this.sprite.setPosition(this.sprite.x+stepX, this.sprite.y+stepY)
+                pause(pauseMs);
             }
         } else {
             this.sprite.setPosition(toX, toY);

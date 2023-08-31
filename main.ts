@@ -144,7 +144,7 @@ namespace NumberTiles {
 
 NumberTiles.chooseDimension()
 NumberTiles.initTiles()
-// NumberTiles.shuffle()
+NumberTiles.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     NumberTiles.doMove(Direction.LEFT);
