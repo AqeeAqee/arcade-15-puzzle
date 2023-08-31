@@ -1,9 +1,9 @@
 enum Direction { UP, DOWN, LEFT, RIGHT }
-const BOARD_X = 12, BOARD_Y = 4, GAP = 3, TILE_SIZE = 24
+const BOARD_X = -1, BOARD_Y = 4, GAP = 3, TILE_SIZE = 24
 
 namespace NumberTiles {
     const MaxTotalRow = 4
-    const MaxTotalCol = 5
+    const MaxTotalCol = 6
     export let totalRow = 4
     export let totalCol = 4
 
@@ -28,13 +28,13 @@ namespace NumberTiles {
             if (i < totalRow)
                 numberTiles.push([])
             for (let j = 0; j < MaxTotalCol; j++) {
-                bg.fillCircle(Tile.calcX(j), Tile.calcY(i), 5, 12)
+                bg.fillRect(BOARD_X + j * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
                 if (i < totalRow && j < totalCol) {
                     numberTiles[i].push(null)
                     if (n != (totalCol * totalRow))
                         numberTiles[i][j] = new Tile(n++, i, j);
                 } else
-                bg.fillRect(BOARD_X + j * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
+                    bg.fillCircle(Tile.calcX(j), Tile.calcY(i), 5, 12)
             }
         }
         bg.fillRect(BOARD_X + MaxTotalCol * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
@@ -129,6 +129,7 @@ namespace NumberTiles {
             miniMenu.createMenuItem("  4 x 3  "),
             miniMenu.createMenuItem("  4 x 4  "),
             miniMenu.createMenuItem("  4 x 5  "),
+            miniMenu.createMenuItem("  4 x 6  "),
         )
         myMenu.title =miniMenu.createMenuItem("15 Puzzle"),
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
