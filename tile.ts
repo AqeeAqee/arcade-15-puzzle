@@ -1,3 +1,7 @@
+const white = 1;
+const red = 2;
+const black = 15;
+
 class Tile {
     public static readonly GRID_THICKNESS = 3;
     public static readonly WIDTH = 24;

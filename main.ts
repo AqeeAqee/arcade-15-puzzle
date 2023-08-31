@@ -7,23 +7,24 @@ namespace NumberTiles {
     export let totalCol = 4
 
     const numberTiles: Tile[][] = [];
-    let emptyTile: { row: number, column: number } = { row: 0, column: 0 };
+    let emptyRow=0, emptyCol=0
 
-    function get(row: number, column: number): Tile {
-        if (row < 0 || row >= totalRow || column < 0 || column >= totalCol) {
-            return null;
-        }
-        return numberTiles[row][column];
+    function get(row: number, col: number): Tile {
+        return (0 <= row && row < totalRow && 0 <= col && col < totalCol)?
+            numberTiles[row][col]:
+            null
     }
 
     export function initTiles() {
         const bg = scene.backgroundImage()
+        const left = 25, top = 4
+        const gap = 3, tileSize = 24, interval = gap + tileSize, boardSize = interval * MaxTotalCol + gap
         bg.fill(13)
-        bg.fillRect(25, 4, 24 * 4 + 3 * 5, 24 * 4 + 3 * 5, 15)
+        bg.fillRect(left, top, boardSize, boardSize, 15)
         let n = 1
         for (let i = 0; i < MaxTotalRow; i++) {
-            bg.fillRect(25 + i * 27, 4, 3, 24 * 4 + 3 * 5, 12)
-            bg.fillRect(25, 4 + i * 27, 24 * 4 + 3 * 5, 3, 12)
+            bg.fillRect(left + i * interval, top, gap, boardSize, 12)
+            bg.fillRect(left, top + i * interval, boardSize, gap, 12)
             if (i < totalRow)
                 numberTiles.push([])
             for (let j = 0; j < MaxTotalCol; j++) {
@@ -32,44 +33,37 @@ namespace NumberTiles {
                     if (n != (totalCol * totalRow))
                         numberTiles[i][j] = new Tile(n++, i, j);
                 } else
-                    bg.fillCircle(40 + j * 27, 19 + i * 27, 5, 12)
+                    bg.fillCircle(left+gap+tileSize/2 + j * interval, top+gap+tileSize/2 + i * interval, 5, 12)
             }
         }
-        bg.fillRect(25 + MaxTotalCol * 27, 4, 3, 24 * 4 + 3 * 5, 12)
-        bg.fillRect(25, 4 + MaxTotalRow * 27, 24 * 4 + 3 * 5, 3, 12)
+        bg.fillRect(left + MaxTotalCol * interval, top, gap, boardSize, 12)
+        bg.fillRect(left, top + MaxTotalRow * interval, boardSize, gap, 12)
 
-        emptyTile.row = totalRow - 1
-        emptyTile.column = totalCol - 1;
+        emptyRow = totalRow - 1
+        emptyCol = totalCol - 1;
     }
 
     function solved(): boolean {
         let c = 1;
         for (let row = 0; row < totalRow; ++row) {
-            for (let column = 0; column < totalCol; ++column) {
-                const tile = get(row, column);
-                if (!tile && c <= (totalCol * totalRow - 1)) {
+            for (let col = 0; col < totalCol; ++col) {
+                const tile = get(row,col)
+                if (tile && tile.n !== c)
                     return false;
-                }
-                if (tile.n !== c) {
-                    return false;
-                }
-                if (c === (totalCol * totalRow - 1)) {
-                    return true;
-                }
-                ++c;
+                c++
             }
         }
         return true;
     }
 
-    function move(fromRow: number, fromColumn: number, toRow: number, toColumn: number, animate: boolean): boolean {
-        const tile = get(fromRow, fromColumn);
+    function move(rowOffset: number, colOffset: number, animate: boolean): boolean {
+        const tile = get(emptyRow + rowOffset, emptyCol + colOffset)
         if (tile) {
-            numberTiles[toRow][toColumn] = tile;
-            tile.set(toRow, toColumn, animate);
-            emptyTile.row = fromRow
-            emptyTile.column = fromColumn;
-            numberTiles[fromRow][fromColumn] = null;
+            numberTiles[emptyRow][emptyCol] = tile;
+            tile.set(emptyRow, emptyCol, animate);
+            emptyRow += rowOffset
+            emptyCol += colOffset;
+            numberTiles[emptyRow][emptyCol] = null;
             return true;
         } else {
             return false;
@@ -77,30 +71,35 @@ namespace NumberTiles {
     }
 
     function moveDir(direction: Direction, animate: boolean): boolean {
-        if (direction === Direction.UP) {
-            return move(emptyTile.row + 1, emptyTile.column, emptyTile.row, emptyTile.column, animate);
-        } else if (direction === Direction.DOWN) {
-            return move(emptyTile.row - 1, emptyTile.column, emptyTile.row, emptyTile.column, animate);
-        } else if (direction === Direction.LEFT) {
-            return move(emptyTile.row, emptyTile.column + 1, emptyTile.row, emptyTile.column, animate);
-        } else if (direction === Direction.RIGHT) {
-            return move(emptyTile.row, emptyTile.column - 1, emptyTile.row, emptyTile.column, animate);
+        switch (direction) {
+            case Direction.UP:
+                return move(+ 1, 0, animate);
+            case Direction.DOWN:
+                return move(- 1, 0, animate);
+            case Direction.LEFT:
+                return move(0, + 1, animate);
+            case Direction.RIGHT:
+                return move(0, - 1, animate);
+            default:
+                return false
         }
-        return false;
     }
 
     function randomMove(): boolean {
         let lastDirection: Direction
         let direction: Direction
-        do {
-            direction = Math.randomRange(0, 3)
-        } while (2 == Math.abs(lastDirection - direction));
+        do { direction = Math.randomRange(0, 3)
+        } while (2 == Math.abs(lastDirection - direction)); //skip reverse moving
 
         lastDirection = direction;
         return moveDir(direction, true);
     }
 
-    export function shuffle(count: number) {
+    export function shuffle() {
+        pause(200);
+        scene.cameraShake(5, 500);
+        pause(600);
+        let count=totalCol*totalRow*8
         while (count)
             if (randomMove())
                 --count;
@@ -114,39 +113,37 @@ namespace NumberTiles {
             if (moveDir(direction, true)) {
                 if (solved()) {
                     pause(100);
-                    game.over(true);
+                    game.over(true, effects.confetti);
                 }
             }
             moveInProgress = false;
         }
     }
 
+    export function chooseDimension() {
+        let menuDone = false
+        let myMenu = miniMenu.createMenu(
+            miniMenu.createMenuItem("  2 x 3  "),
+            miniMenu.createMenuItem("  3 x 2  "),
+            miniMenu.createMenuItem("  3 x 3  "),
+            miniMenu.createMenuItem("  3 x 4  "),
+            miniMenu.createMenuItem("  4 x 3  "),
+            miniMenu.createMenuItem("  4 x 4  "),
+        )
+        myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
+            const dimension = itemTitle.split("x")
+            NumberTiles.totalRow = parseInt(dimension[0])
+            NumberTiles.totalCol = parseInt(dimension[1])
+            myMenu.close()
+            menuDone = true
+        })
+        pauseUntil(() => menuDone)
+    }
 }
 
-let menuDone = false
-let myMenu = miniMenu.createMenu(
-    miniMenu.createMenuItem("  2 x 3  "),
-    miniMenu.createMenuItem("  3 x 2  "),
-    miniMenu.createMenuItem("  3 x 3  "),
-    miniMenu.createMenuItem("  3 x 4  "),
-    miniMenu.createMenuItem("  4 x 3  "),
-    miniMenu.createMenuItem("  4 x 4  "),
-)
-myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
-    const dimension = itemTitle.split("x")
-    NumberTiles.totalRow = parseInt(dimension[0])
-    NumberTiles.totalCol = parseInt(dimension[1])
-    myMenu.close()
-    menuDone = true
-})
-pauseUntil(() => menuDone)
-
-NumberTiles.initTiles();
-pause(200);
-scene.cameraShake(5, 500);
-pause(600);
-
-NumberTiles.shuffle(66)
+NumberTiles.chooseDimension()
+NumberTiles.initTiles()
+NumberTiles.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     NumberTiles.doMove(Direction.LEFT);
@@ -160,11 +157,3 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, () => {
 controller.down.onEvent(ControllerButtonEvent.Pressed, () => {
     NumberTiles.doMove(Direction.DOWN);
 });
-
-const transparent = 0;
-const white = 1;
-const red = 2;
-const black = 15;
-const backgroundColor = 13;
-const gridBackgroundColor = black;
-const gridColor = 12;
