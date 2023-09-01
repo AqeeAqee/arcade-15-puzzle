@@ -112,6 +112,7 @@ namespace NumberTiles {
             miniMenu.createMenuItem("  4 x 4  "),
             miniMenu.createMenuItem("  4 x 5  "),
             miniMenu.createMenuItem("  4 x 6  "),
+            miniMenu.createMenuItem("  5 x 6  "),
         )
         myMenu.title =miniMenu.createMenuItem("15 Puzzle"),
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
