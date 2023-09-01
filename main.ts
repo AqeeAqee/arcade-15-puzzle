@@ -127,6 +127,8 @@ namespace Board {
             miniMenu.createMenuItem("  5 x 7  "),
         )
         myMenu.title = miniMenu.createMenuItem("15 Puzzle")
+        myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 110)
+        myMenu.y=60
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
             const dimension = itemTitle.split("x")
             myMenu.close()
