@@ -1,8 +1,8 @@
 enum Direction { UP, LEFT, DOWN, RIGHT }
-let Board_Left = 0, Board_Top = 0
-const GAP = 3, TILE_SIZE = 24
-const INTERVAL = GAP + TILE_SIZE
 const bg = scene.backgroundImage()
+let Board_Left = 0, Board_Top = 0
+let GAP = 3, TILE_SIZE = 24
+let INTERVAL = 0
 
 namespace Board {
     export let Rows = 0, Columns = 0
@@ -12,7 +12,11 @@ namespace Board {
     const wallsVrt: boolean[][] = []
     const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
-    export function initBoard() {
+    export function initBoard(rows:number, columns:number) {
+        Rows=rows
+        Columns=columns
+        if (Rows > 4 || Columns > 5) TILE_SIZE -= 4
+        INTERVAL = GAP + TILE_SIZE
         const BOARD_WIDTH = INTERVAL * Columns + GAP
         const BOARD_HEIGHT = INTERVAL * Rows + GAP
         Board_Left = (screen.width - BOARD_WIDTH) >> 1
@@ -120,13 +124,13 @@ namespace Board {
             miniMenu.createMenuItem("  4 x 6  "),
             miniMenu.createMenuItem("  5 x 5  "),
             miniMenu.createMenuItem("  5 x 6  "),
+            miniMenu.createMenuItem("  5 x 7  "),
         )
         myMenu.title = miniMenu.createMenuItem("15 Puzzle")
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
             const dimension = itemTitle.split("x")
-            Rows = parseInt(dimension[0])
-            Columns = parseInt(dimension[1])
             myMenu.close()
+            initBoard(parseInt(dimension[0]), parseInt(dimension[1]))
             menuDone = true
         })
         pauseUntil(() => menuDone)
@@ -180,8 +184,8 @@ namespace Board {
 }
 
 Board.chooseDimension()
-Board.initBoard()
-Board.addWalls(Math.idiv(Board.Rows + Board.Columns - 4, 2))
+// Board.addWalls(Math.idiv(Board.Rows + Board.Columns - 4, 2))
+Board.addWalls(Board.Rows + Board.Columns - 5)
 Board.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
