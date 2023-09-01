@@ -23,11 +23,11 @@ class Tile {
     }
 
     public static calcX(column: number): number {
-        return BOARD_X + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
+        return NumberTiles.Board_Left + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
     }
 
     public static calcY(row: number): number {
-        return BOARD_Y + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
+        return NumberTiles.Board_Top + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
     }
 
     set n(n: number) {

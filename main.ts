@@ -1,28 +1,25 @@
 enum Direction { UP, LEFT, DOWN, RIGHT }
-const BOARD_X = -1, BOARD_Y = 4, GAP = 3, TILE_SIZE = 24
+const GAP = 3, TILE_SIZE = 24
 
 namespace NumberTiles {
-    const MaxTotalRow = 4
-    const MaxTotalCol = 6
-    export let totalRow = 4
-    export let totalCol = 4
-
-    const numberTiles: Tile[][] = [];
+    export let Board_Left = 0, Board_Top = 0
+    export let totalRow = 0, totalCol = 0
     let emptyRow=0, emptyCol=0
+    const numberTiles: Tile[][] = [];
 
     export function initTiles() {
         const INTERVAL = GAP + TILE_SIZE
-        const BOARD_WIDTH = INTERVAL * MaxTotalCol + GAP, BOARD_HEIGHT = INTERVAL * MaxTotalRow + GAP
+        const BOARD_WIDTH = INTERVAL * totalCol + GAP, BOARD_HEIGHT = INTERVAL * totalRow + GAP
+        Board_Left = (screen.width - BOARD_WIDTH) >> 1
+        Board_Top = (screen.height - BOARD_HEIGHT) >> 1
         const bg = scene.backgroundImage()
         bg.fill(13)
-        bg.fillRect(BOARD_X, BOARD_Y, BOARD_WIDTH, BOARD_HEIGHT, 15)
-        let n = 1
-        for (let i = 0; i < MaxTotalRow; i++) {
-            bg.fillRect(BOARD_X, BOARD_Y + i * INTERVAL, BOARD_WIDTH, GAP, 12)
+        bg.fillRect(Board_Left, Board_Top, BOARD_WIDTH, BOARD_HEIGHT, 12)
+        for (let i = 0, n = 1; i < totalRow; i++) {
             if (i < totalRow)
                 numberTiles.push([])
-            for (let j = 0; j < MaxTotalCol; j++) {
-                bg.fillRect(BOARD_X + j * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
+            for (let j = 0; j < totalCol; j++) {
+                bg.fillRect(Board_Left+GAP + j * INTERVAL, Board_Top+GAP + i * INTERVAL, TILE_SIZE, TILE_SIZE, 15);pause(0)
                 if (i < totalRow && j < totalCol) {
                     numberTiles[i].push(null)
                     if (n != (totalCol * totalRow))
@@ -31,9 +28,6 @@ namespace NumberTiles {
                     bg.fillCircle(Tile.calcX(j), Tile.calcY(i), 5, 12)
             }
         }
-        bg.fillRect(BOARD_X + MaxTotalCol * INTERVAL, BOARD_Y, GAP, BOARD_HEIGHT, 12)
-        bg.fillRect(BOARD_X, BOARD_Y + MaxTotalRow * INTERVAL, BOARD_WIDTH, GAP, 12)
-
         emptyRow = totalRow - 1
         emptyCol = totalCol - 1;
     }
