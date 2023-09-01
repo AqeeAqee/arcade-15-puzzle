@@ -16,18 +16,18 @@ class Tile {
         const frames = 4;
         for (let i = 0; i <= frames; i++) {
             this.sprite.setScale(i/frames)
-            // pause(10);
+            pause(10);
         }
         this._row = row;
         this._column = column;
     }
 
     public static calcX(column: number): number {
-        return NumberTiles.Board_Left + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
+        return Board_Left + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
     }
 
     public static calcY(row: number): number {
-        return NumberTiles.Board_Top + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
+        return Board_Top + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
     }
 
     set n(n: number) {

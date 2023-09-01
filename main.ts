@@ -1,10 +1,10 @@
 enum Direction { UP, LEFT, DOWN, RIGHT }
+let Board_Left = 0, Board_Top = 0
 const GAP = 3, TILE_SIZE = 24
 const INTERVAL = GAP + TILE_SIZE
 const bg = scene.backgroundImage()
 
 namespace NumberTiles {
-    export let Board_Left = 0, Board_Top = 0
     export let totalRow = 0, totalCol = 0
     let emptyRow = 0, emptyCol = 0
     const boardCells: Tile[][] = [];
@@ -114,16 +114,17 @@ namespace NumberTiles {
             miniMenu.createMenuItem("  4 x 4  "),
             miniMenu.createMenuItem("  4 x 5  "),
             miniMenu.createMenuItem("  4 x 6  "),
+            miniMenu.createMenuItem("  5 x 5  "),
             miniMenu.createMenuItem("  5 x 6  "),
         )
-        myMenu.title = miniMenu.createMenuItem("15 Puzzle"),
-            myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
-                const dimension = itemTitle.split("x")
-                NumberTiles.totalRow = parseInt(dimension[0])
-                NumberTiles.totalCol = parseInt(dimension[1])
-                myMenu.close()
-                menuDone = true
-            })
+        myMenu.title = miniMenu.createMenuItem("15 Puzzle")
+        myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
+            const dimension = itemTitle.split("x")
+            NumberTiles.totalRow = parseInt(dimension[0])
+            NumberTiles.totalCol = parseInt(dimension[1])
+            myMenu.close()
+            menuDone = true
+        })
         pauseUntil(() => menuDone)
     }
 
@@ -144,6 +145,14 @@ namespace NumberTiles {
         return true
     }
 
+    function countMovableDirections(row: number, col: number){
+        let count=0
+        for (let dir = 0; dir < 4; dir++)
+            if (canMoveDir(row, col, dir))
+                count++
+        return count
+    }
+
     export function addWalls(n: number) {
         for (let i = 0, n = 1; i < totalRow; i++) {
             wallsHrz.push([])
@@ -153,62 +162,37 @@ namespace NumberTiles {
                 wallsVrt[i].push(false)
         }}
         while (n) {
-            //try horizontal wall
-            if (Math.percentChance(50)) {
+            if (Math.percentChance(50)) { //try horizontal wall
                 const tryRow = Math.randomRange(0, totalRow - 2)
                 const tryCol = Math.randomRange(0, totalCol - 1)
-                let countFreeDirs_TileAtUp = 0, countFreeDirs_TileAtBottom = 0
                 if (!wallsHrz[tryRow][tryCol]) {
-                    // bg.print([tryRow, tryCol].join(), 0, n*10);pause(0)//test
                     wallsHrz[tryRow][tryCol] = true
-                    for (let dir = 0; dir < 4; dir++) {
-                        if (canMoveDir(tryRow, tryCol, dir))
-                            countFreeDirs_TileAtUp++
-                        if (canMoveDir(tryRow + 1, tryCol, dir))
-                            countFreeDirs_TileAtBottom++
-                    }
-                    if (countFreeDirs_TileAtUp >= 2 && countFreeDirs_TileAtBottom >= 2) {
+                    if (countMovableDirections(tryRow, tryCol) >= 2 && countMovableDirections(tryRow + 1, tryCol) >= 2) {
                         bg.fillRect(Board_Left + GAP + tryCol * INTERVAL + 1, Board_Top + (tryRow + 1) * INTERVAL + 1, TILE_SIZE - 2, 1, 5)
                         n--
                     }
-                    else {
+                    else 
                         wallsHrz[tryRow][tryCol] = false
-                    }
                 }
             }
-            //try vertical wall
-            if (Math.percentChance(50)) {
+            else{//try vertical wall
                 const tryRow = Math.randomRange(0, totalRow - 1)
                 const tryCol = Math.randomRange(0, totalCol - 2)
-                let countFreeDirs_TileAtLeft = 0, countFreeDirs_TileAtRight = 0
                 if (!wallsVrt[tryRow][tryCol]) {
-                    // bg.print([tryRow, tryCol].join(), 0, n*10);pause(0)//test
                     wallsVrt[tryRow][tryCol] = true
-                    for (let dir = 0; dir < 4; dir++) {
-                        if (canMoveDir(tryRow, tryCol, dir))
-                            countFreeDirs_TileAtLeft++
-                        if (canMoveDir(tryRow, tryCol+1, dir))
-                            countFreeDirs_TileAtRight++
-                    }
-                    if (countFreeDirs_TileAtLeft >= 2 && countFreeDirs_TileAtRight >= 2) {
+                    if (countMovableDirections(tryRow, tryCol) >= 2 && countMovableDirections(tryRow, tryCol + 1) >= 2) {
                         bg.fillRect(Board_Left + (tryCol + 1) * INTERVAL + 1, Board_Top + GAP + tryRow  * INTERVAL + 1, 1 , TILE_SIZE - 2, 5)
                         n--
                     }
-                    else {
+                    else 
                         wallsVrt[tryRow][tryCol] = false
-                    }
                 }
-            }        
+            }
         }
     }
 }
 
-// for (let i = 0; i < 12; i++) {
-//     Math.idiv(i - 5, 2)
-// }
-
 NumberTiles.chooseDimension()
-// NumberTiles.totalRow = 4; NumberTiles.totalCol = 4
 NumberTiles.initTiles()
 NumberTiles.addWalls(Math.idiv(NumberTiles.totalRow + NumberTiles.totalCol - 4, 2))
 NumberTiles.shuffle()
