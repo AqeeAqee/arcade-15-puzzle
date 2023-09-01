@@ -73,7 +73,7 @@ class Tile {
     }
 
     private static colorFlip(n:number){
-        return (((n-1) % Board.Columns + (n-1) / Board.Rows)|0) % 2 === 1
+        return (((n-1) % Board.Columns + (n-1) / Board.Columns)|0) % 2 === 1
     }
 
     private static bgColorFor(n: number): number {
