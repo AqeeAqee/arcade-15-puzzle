@@ -16,7 +16,7 @@ class Tile {
         const frames = 4;
         for (let i = 0; i <= frames; i++) {
             this.sprite.setScale(i/frames)
-            pause(10);
+            // pause(10);
         }
         this._row = row;
         this._column = column;

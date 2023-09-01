@@ -1,48 +1,49 @@
 enum Direction { UP, LEFT, DOWN, RIGHT }
 const GAP = 3, TILE_SIZE = 24
+const INTERVAL = GAP + TILE_SIZE
+const bg = scene.backgroundImage()
 
 namespace NumberTiles {
     export let Board_Left = 0, Board_Top = 0
     export let totalRow = 0, totalCol = 0
-    let emptyRow=0, emptyCol=0
-    const numberTiles: Tile[][] = [];
+    let emptyRow = 0, emptyCol = 0
+    const boardCells: Tile[][] = [];
+    const wallsHrz: boolean[][] = []
+    const wallsVrt: boolean[][] = []
+    const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
     export function initTiles() {
-        const INTERVAL = GAP + TILE_SIZE
-        const BOARD_WIDTH = INTERVAL * totalCol + GAP, BOARD_HEIGHT = INTERVAL * totalRow + GAP
+        const BOARD_WIDTH = INTERVAL * totalCol + GAP
+        const BOARD_HEIGHT = INTERVAL * totalRow + GAP
         Board_Left = (screen.width - BOARD_WIDTH) >> 1
         Board_Top = (screen.height - BOARD_HEIGHT) >> 1
-        const bg = scene.backgroundImage()
+
         bg.fill(13)
         bg.fillRect(Board_Left, Board_Top, BOARD_WIDTH, BOARD_HEIGHT, 12)
         for (let i = 0, n = 1; i < totalRow; i++) {
-            if (i < totalRow)
-                numberTiles.push([])
+            boardCells.push([])
             for (let j = 0; j < totalCol; j++) {
-                bg.fillRect(Board_Left+GAP + j * INTERVAL, Board_Top+GAP + i * INTERVAL, TILE_SIZE, TILE_SIZE, 15);pause(0)
-                if (i < totalRow && j < totalCol) {
-                    numberTiles[i].push(null)
-                    if (n != (totalCol * totalRow))
-                        numberTiles[i][j] = new Tile(n++, i, j);
-                } else
-                    bg.fillCircle(Tile.calcX(j), Tile.calcY(i), 5, 12)
+                bg.fillRect(Board_Left + GAP + j * INTERVAL, Board_Top + GAP + i * INTERVAL, TILE_SIZE, TILE_SIZE, 15)
+                if (n != (totalCol * totalRow))
+                    boardCells[i][j] = new Tile(n++, i, j);
             }
         }
+
         emptyRow = totalRow - 1
         emptyCol = totalCol - 1;
     }
 
     function get(row: number, col: number): Tile {
-        return (0 <= row && row < totalRow && 0 <= col && col < totalCol)?
-            numberTiles[row][col]:
+        return (0 <= row && row < totalRow && 0 <= col && col < totalCol) ?
+            boardCells[row][col] :
             null
     }
 
     function solved(): boolean {
         let c = 1;
         for (let row = 0; row < totalRow; ++row)
-            for (let col = 0; col < totalCol; ++col,c++) {
-                const tile = get(row,col)
+            for (let col = 0; col < totalCol; ++col, c++) {
+                const tile = get(row, col)
                 if (tile && tile.n !== c)
                     return false;
             }
@@ -50,16 +51,16 @@ namespace NumberTiles {
     }
 
     function moveDir(direction: Direction, animate: boolean): boolean {
-        const offsetDir=[[1,0],[0,1],[-1,0],[0,-1]]
+        if(!canMoveDir(emptyRow,emptyCol, direction)) return false
         const offsetRow = offsetDir[direction][0]
         const offsetCol = offsetDir[direction][1]
         const tile = get(emptyRow + offsetRow, emptyCol + offsetCol)
         if (tile) {
-            numberTiles[emptyRow][emptyCol] = tile;
+            boardCells[emptyRow][emptyCol] = tile;
             tile.set(emptyRow, emptyCol, animate);
             emptyRow += offsetRow
             emptyCol += offsetCol;
-            numberTiles[emptyRow][emptyCol] = null;
+            boardCells[emptyRow][emptyCol] = null;
             return true;
         }
         return false;
@@ -68,10 +69,11 @@ namespace NumberTiles {
     let lastDirection: Direction
     function randomMove(): boolean {
         let direction: Direction
-        do { direction = Math.randomRange(0, 3)
+        do {
+            direction = Math.randomRange(0, 3)
         } while (2 == Math.abs(lastDirection - direction)); //skip reverse moving
 
-        if (moveDir(direction, true)){
+        if (moveDir(direction, true)) {
             lastDirection = direction;
             return true
         }
@@ -82,7 +84,7 @@ namespace NumberTiles {
         pause(200);
         scene.cameraShake(5, 500);
         pause(600);
-        let count=(totalCol*totalRow)**2>>1
+        let count = (totalCol * totalRow) ** 2 >> 2
         while (count)
             if (randomMove())
                 --count
@@ -114,20 +116,101 @@ namespace NumberTiles {
             miniMenu.createMenuItem("  4 x 6  "),
             miniMenu.createMenuItem("  5 x 6  "),
         )
-        myMenu.title =miniMenu.createMenuItem("15 Puzzle"),
-        myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
-            const dimension = itemTitle.split("x")
-            NumberTiles.totalRow = parseInt(dimension[0])
-            NumberTiles.totalCol = parseInt(dimension[1])
-            myMenu.close()
-            menuDone = true
-        })
+        myMenu.title = miniMenu.createMenuItem("15 Puzzle"),
+            myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
+                const dimension = itemTitle.split("x")
+                NumberTiles.totalRow = parseInt(dimension[0])
+                NumberTiles.totalCol = parseInt(dimension[1])
+                myMenu.close()
+                menuDone = true
+            })
         pauseUntil(() => menuDone)
+    }
+
+    function canMoveDir(row:number,col:number, dir:Direction):boolean{
+        const offsetRow = offsetDir[dir][0]
+        const offsetCol = offsetDir[dir][1]
+        const targetRow = row + offsetRow
+        const targetCol = col + offsetCol
+
+        if (offsetRow) {
+            if (targetRow < 0 || targetRow >= totalRow) return false
+            if (wallsHrz[Math.min(row, targetRow)][col]) return false
+        }
+        if (offsetCol) {
+            if (targetCol < 0 || targetCol >= totalCol) return false
+            if (wallsVrt[row][Math.min(col, targetCol)]) return false
+        }
+        return true
+    }
+
+    export function addWalls(n: number) {
+        for (let i = 0, n = 1; i < totalRow; i++) {
+            wallsHrz.push([])
+            wallsVrt.push([])
+            for (let j = 0, n = 1; j < totalCol; j++) {
+                wallsHrz[i].push(false)
+                wallsVrt[i].push(false)
+        }}
+        while (n) {
+            //try horizontal wall
+            if (Math.percentChance(50)) {
+                const tryRow = Math.randomRange(0, totalRow - 2)
+                const tryCol = Math.randomRange(0, totalCol - 1)
+                let countFreeDirs_TileAtUp = 0, countFreeDirs_TileAtBottom = 0
+                if (!wallsHrz[tryRow][tryCol]) {
+                    // bg.print([tryRow, tryCol].join(), 0, n*10);pause(0)//test
+                    wallsHrz[tryRow][tryCol] = true
+                    for (let dir = 0; dir < 4; dir++) {
+                        if (canMoveDir(tryRow, tryCol, dir))
+                            countFreeDirs_TileAtUp++
+                        if (canMoveDir(tryRow + 1, tryCol, dir))
+                            countFreeDirs_TileAtBottom++
+                    }
+                    if (countFreeDirs_TileAtUp >= 2 && countFreeDirs_TileAtBottom >= 2) {
+                        bg.fillRect(Board_Left + GAP + tryCol * INTERVAL + 1, Board_Top + (tryRow + 1) * INTERVAL + 1, TILE_SIZE - 2, 1, 5)
+                        n--
+                    }
+                    else {
+                        wallsHrz[tryRow][tryCol] = false
+                    }
+                }
+            }
+            //try vertical wall
+            if (Math.percentChance(50)) {
+                const tryRow = Math.randomRange(0, totalRow - 1)
+                const tryCol = Math.randomRange(0, totalCol - 2)
+                let countFreeDirs_TileAtLeft = 0, countFreeDirs_TileAtRight = 0
+                if (!wallsVrt[tryRow][tryCol]) {
+                    // bg.print([tryRow, tryCol].join(), 0, n*10);pause(0)//test
+                    wallsVrt[tryRow][tryCol] = true
+                    for (let dir = 0; dir < 4; dir++) {
+                        if (canMoveDir(tryRow, tryCol, dir))
+                            countFreeDirs_TileAtLeft++
+                        if (canMoveDir(tryRow, tryCol+1, dir))
+                            countFreeDirs_TileAtRight++
+                    }
+                    if (countFreeDirs_TileAtLeft >= 2 && countFreeDirs_TileAtRight >= 2) {
+                        bg.fillRect(Board_Left + (tryCol + 1) * INTERVAL + 1, Board_Top + GAP + tryRow  * INTERVAL + 1, 1 , TILE_SIZE - 2, 5)
+                        n--
+                    }
+                    else {
+                        wallsVrt[tryRow][tryCol] = false
+                    }
+                }
+            }        
+        }
     }
 }
 
+// for (let i = 0; i < 12; i++) {
+//     Math.idiv(i - 5, 2)
+// }
+
 NumberTiles.chooseDimension()
+// NumberTiles.totalRow = 4; NumberTiles.totalCol = 4
 NumberTiles.initTiles()
+NumberTiles.addWalls(Math.idiv(NumberTiles.totalRow + NumberTiles.totalCol - 4, 2))
 NumberTiles.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
