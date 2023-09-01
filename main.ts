@@ -1,4 +1,4 @@
-enum Direction { UP, DOWN, LEFT, RIGHT }
+enum Direction { UP, LEFT, DOWN, RIGHT }
 const BOARD_X = -1, BOARD_Y = 4, GAP = 3, TILE_SIZE = 24
 
 namespace NumberTiles {
@@ -9,12 +9,6 @@ namespace NumberTiles {
 
     const numberTiles: Tile[][] = [];
     let emptyRow=0, emptyCol=0
-
-    function get(row: number, col: number): Tile {
-        return (0 <= row && row < totalRow && 0 <= col && col < totalCol)?
-            numberTiles[row][col]:
-            null
-    }
 
     export function initTiles() {
         const INTERVAL = GAP + TILE_SIZE
@@ -44,56 +38,50 @@ namespace NumberTiles {
         emptyCol = totalCol - 1;
     }
 
+    function get(row: number, col: number): Tile {
+        return (0 <= row && row < totalRow && 0 <= col && col < totalCol)?
+            numberTiles[row][col]:
+            null
+    }
+
     function solved(): boolean {
         let c = 1;
-        for (let row = 0; row < totalRow; ++row) {
-            for (let col = 0; col < totalCol; ++col) {
+        for (let row = 0; row < totalRow; ++row)
+            for (let col = 0; col < totalCol; ++col,c++) {
                 const tile = get(row,col)
                 if (tile && tile.n !== c)
                     return false;
-                c++
             }
-        }
         return true;
     }
 
-    function move(rowOffset: number, colOffset: number, animate: boolean): boolean {
-        const tile = get(emptyRow + rowOffset, emptyCol + colOffset)
+    function moveDir(direction: Direction, animate: boolean): boolean {
+        const offsetDir=[[1,0],[0,1],[-1,0],[0,-1]]
+        const offsetRow = offsetDir[direction][0]
+        const offsetCol = offsetDir[direction][1]
+        const tile = get(emptyRow + offsetRow, emptyCol + offsetCol)
         if (tile) {
             numberTiles[emptyRow][emptyCol] = tile;
             tile.set(emptyRow, emptyCol, animate);
-            emptyRow += rowOffset
-            emptyCol += colOffset;
+            emptyRow += offsetRow
+            emptyCol += offsetCol;
             numberTiles[emptyRow][emptyCol] = null;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    function moveDir(direction: Direction, animate: boolean): boolean {
-        switch (direction) {
-            case Direction.UP:
-                return move(+ 1, 0, animate);
-            case Direction.DOWN:
-                return move(- 1, 0, animate);
-            case Direction.LEFT:
-                return move(0, + 1, animate);
-            case Direction.RIGHT:
-                return move(0, - 1, animate);
-            default:
-                return false
-        }
-    }
-
+    let lastDirection: Direction
     function randomMove(): boolean {
-        let lastDirection: Direction
         let direction: Direction
         do { direction = Math.randomRange(0, 3)
         } while (2 == Math.abs(lastDirection - direction)); //skip reverse moving
 
-        lastDirection = direction;
-        return moveDir(direction, true);
+        if (moveDir(direction, true)){
+            lastDirection = direction;
+            return true
+        }
+        return false
     }
 
     export function shuffle() {
@@ -103,7 +91,7 @@ namespace NumberTiles {
         let count=(totalCol*totalRow)**2>>1
         while (count)
             if (randomMove())
-                --count;
+                --count
     }
 
     let moveInProgress: boolean = false;
