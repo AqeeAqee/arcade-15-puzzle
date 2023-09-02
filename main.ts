@@ -14,18 +14,18 @@ namespace Board {
     const wallsVrt: boolean[][] = []
     const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
     const cursor = img`
-        . . . . . . . . . B . .
-        . . . . . . . . B B B .
-        . . . . . . . B . B . B
-        . . . . . . . . . B . .
-        . . . . . . . . . B . .
-        . . . . . . . B . B . B
-        . . . . . . . . B B B .
-        . . B . . B . . . B . .
-        . B . . . . B . . . . .
-        B B B B B B B B . . . .
-        . B . . . . B . . . . .
-        . . B . . B . . . . . .
+        . . . . . . . . . b . .
+        . . . . . . . . . . b .
+        . . . . . b b b b b b b
+        . . . . . . . . . . b .
+        . . . . . . . . . b . .
+        . . b . . . . . . . . .
+        . . b . . . . . . . . .
+        . . b . . . . . . . . .
+        . . b . . . . . . . . .
+        b . b . b . . . . . . .
+        . b b b . . . . . . . .
+        . . b . . . . . . . . .
     `
 
     export function initBoard(rows: number, columns: number, preview=false) {
@@ -65,10 +65,10 @@ namespace Board {
         if (preview){
             bg.print("15 - Puzzle", 12, 6, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
-            bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 5, Board_Top + BOARD_HEIGHT - 5)
-            bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 98,11)
-            bg.print("A: Go", 40, 108,11)
-        } 
+            bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT - 3)
+            bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 100,11)
+            bg.print("A: Go", 40, 110,11)
+        }
 
         emptyRow = Rows - 1
         emptyCol = Columns - 1;
