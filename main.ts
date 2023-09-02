@@ -1,13 +1,13 @@
 game.stats=true
 
 enum Direction { UP, LEFT, DOWN, RIGHT }
-let Board_Left = 0, Board_Top = 0
-let GAP = 2, TILE_SIZE = 10
-let INTERVAL = 0
-let InsertWalls=false
 
 namespace Board {
+    export let Board_Left = 0, Board_Top = 0
+    export let GAP = 2, TILE_SIZE = 10
+    export let INTERVAL = 0
     export let Rows = 3, Columns = 4
+    export let InsertWalls=false
     let emptyRow = 0, emptyCol = 0
     const boardCells: Tile[][] = [];
     const wallsHrz: boolean[][] = []
@@ -66,7 +66,7 @@ namespace Board {
             bg.print("15 - Puzzle", 12, 6, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
             bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 5, Board_Top + BOARD_HEIGHT - 5)
-            bg.print("B: walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 98,11)
+            bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 98,11)
             bg.print("A: Go", 40, 108,11)
         } 
 
@@ -176,6 +176,13 @@ namespace Board {
         game.pushScene();
         let menuDone = false
 
+        if (settings.exists("Rows"))
+            Board.Rows = settings.readNumber("Rows")
+        if (settings.exists("Columns"))
+            Board.Columns = settings.readNumber("Columns")
+        if (settings.exists("Walls"))
+            Board.InsertWalls = settings.readNumber("Walls") == 1
+
         initBoard(Rows, Columns, true)
 
         let pressed = true;
@@ -185,7 +192,6 @@ namespace Board {
                 pressed = true;
                 scene.setBackgroundImage(null); // GC it
                 game.popScene();
-                initBoard(Rows, Columns)
                 menuDone = true;
             }
             else if (pressed && !currentState) {
@@ -202,7 +208,7 @@ namespace Board {
                 Columns--
             if (controller.right.isPressed() && Columns < 7)
                 Columns++
-            if (controller.B.isPressed() && Columns < 7)
+            if (controller.B.isPressed())
                 InsertWalls=!InsertWalls
 
             if (!controller.A.isPressed()){
@@ -214,6 +220,11 @@ namespace Board {
 
         pauseUntil(() => menuDone)
         // controller._setUserEventsEnabled(true);
+        settings.writeNumber("Rows", Board.Rows)
+        settings.writeNumber("Columns", Board.Columns)
+        settings.writeNumber("Walls", Board.InsertWalls ? 1 : 0)
+        initBoard(Rows, Columns)
+
     }
 
     function canMoveDir(row: number, col: number, dir: Direction): boolean {
@@ -265,7 +276,7 @@ namespace Board {
 }
 
 Board.chooseDimension()
-if(InsertWalls)
+if(Board.InsertWalls)
     Board.addWalls(Board.Rows + Board.Columns - 5)
 Board.shuffle()
 

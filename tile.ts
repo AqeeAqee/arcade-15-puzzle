@@ -25,11 +25,11 @@ class Tile {
     }
 
     public static calcX(column: number): number {
-        return Board_Left + GAP + TILE_SIZE / 2 + column * (TILE_SIZE + GAP);
+        return Board.Board_Left + Board.GAP + Board.TILE_SIZE / 2 + column * (Board.TILE_SIZE + Board.GAP);
     }
 
     public static calcY(row: number): number {
-        return Board_Top + GAP + TILE_SIZE / 2 + row * (TILE_SIZE + GAP);
+        return Board.Board_Top + Board.GAP + Board.TILE_SIZE / 2 + row * (Board.TILE_SIZE + Board.GAP);
     }
 
     set n(n: number) {
@@ -72,20 +72,20 @@ class Tile {
         this._column = column;
     }
 
-    private static colorFlip(n: number) {
-        return (((n - 1) % Board.Columns + (n - 1) / Board.Columns) | 0) % 2 === 1
+    private static colorFlip(index: number) {
+        return ((index % Board.Columns + index / Board.Columns) | 0) % 2 === 1
     }
 
     private static bgColorFor(n: number): number {
-        return Tile.colorFlip(n) ? red : white;
+        return Tile.colorFlip(n-1) ? red : white;
     }
 
     private static textColorFor(n: number): number {
-        return Tile.colorFlip(n) ? white : black;
+        return Tile.colorFlip(n-1) ? white : black;
     }
 
     private createImage(n: number): Image {
-        const img = image.create(TILE_SIZE, TILE_SIZE);
+        const img = image.create(Board.TILE_SIZE, Board.TILE_SIZE);
         img.fill(Tile.bgColorFor(n));
         if(!this.preview)
             img.printCenter(n.toString(), (img.height - Tile.font.charHeight) >> 1, Tile.textColorFor(n), Tile.font)
