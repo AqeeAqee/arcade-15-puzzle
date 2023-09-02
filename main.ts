@@ -144,35 +144,7 @@ namespace Board {
         }
     }
 
-    export function chooseDimension_menu() {
-        let menuDone = false
-        let myMenu = miniMenu.createMenu(
-            miniMenu.createMenuItem("  2 x 3  "),
-            miniMenu.createMenuItem("  3 x 2  "),
-            miniMenu.createMenuItem("  3 x 3  "),
-            miniMenu.createMenuItem("  3 x 4  "),
-            miniMenu.createMenuItem("  4 x 3  "),
-            miniMenu.createMenuItem("  4 x 4  "),
-            miniMenu.createMenuItem("  4 x 5  "),
-            miniMenu.createMenuItem("  4 x 6  "),
-            miniMenu.createMenuItem("  5 x 5  "),
-            miniMenu.createMenuItem("  5 x 6  "),
-            miniMenu.createMenuItem("  5 x 7  "),
-        )
-        myMenu.title = miniMenu.createMenuItem("15 Puzzle")
-        myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 110)
-        myMenu.y = 60
-        myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
-            myMenu.close()
-            const dimension = itemTitle.split("x")
-            initBoard(parseInt(dimension[0]), parseInt(dimension[1]))
-            menuDone = true
-        })
-        pauseUntil(() => menuDone)
-    }
-
     export function chooseDimension() {
-        // controller._setUserEventsEnabled(false);
         game.pushScene();
         let menuDone = false
 
@@ -185,17 +157,11 @@ namespace Board {
 
         initBoard(Rows, Columns, true)
 
-        let pressed = true;
         game.onUpdate(() => {
-            const currentState = controller.A.isPressed();
-            if (currentState && !pressed) {
-                pressed = true;
+            if (controller.A.isPressed()) {
                 scene.setBackgroundImage(null); // GC it
                 game.popScene();
                 menuDone = true;
-            }
-            else if (pressed && !currentState) {
-                pressed = false;
             }
         })
 
@@ -210,16 +176,12 @@ namespace Board {
                 Columns++
             if (controller.B.isPressed())
                 InsertWalls=!InsertWalls
-
             if (!controller.A.isPressed()){
                 initBoard(Rows, Columns, true )
             }
         })
 
-
-
         pauseUntil(() => menuDone)
-        // controller._setUserEventsEnabled(true);
         settings.writeNumber("Rows", Board.Rows)
         settings.writeNumber("Columns", Board.Columns)
         settings.writeNumber("Walls", Board.InsertWalls ? 1 : 0)
