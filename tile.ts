@@ -13,10 +13,10 @@ class Tile {
         this.sprite
         this.n = n;
         this.sprite.setPosition(Tile.calcX(column), Tile.calcY(row));
-        const frames = 4;
-        for (let i = 0; i <= frames; i++) {
+        const frames = 5;
+        for (let i = 1; i <= frames; i++) {
             this.sprite.setScale(i/frames)
-            pause(10);
+            pause(15);
         }
         this._row = row;
         this._column = column;
