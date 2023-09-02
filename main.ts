@@ -88,14 +88,17 @@ namespace Board {
         return Rows + "," + Columns + "," + (InsertWalls ? 1 : 0)
     }
 
-    function initScore(){
+    function initScore() {
         info.setScore(0)
-        const highScore = settings.exists(getSettingKeyOfDimension()) ? settings.readNumber(getSettingKeyOfDimension()) : 9999
+        let highScore = 9999
+        if (settings.exists(getSettingKeyOfDimension())) {
+            highScore = settings.readNumber(getSettingKeyOfDimension())
+            info.setLife(highScore)
+            const lifeImg = image.create(26, 8)
+            lifeImg.print("BEST", 0, 0, 3)
+            info.setLifeImage(lifeImg)
+        }
         settings.writeNumber("high-score", highScore);
-        info.setLife(highScore)
-        const lifeImg = image.create(26, 8)
-        lifeImg.print("BEST", 0, 0, 3)
-        info.setLifeImage(lifeImg)
     }
 
     function saveScore(){
