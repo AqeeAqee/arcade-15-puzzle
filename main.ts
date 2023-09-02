@@ -27,9 +27,8 @@ namespace Board {
         . b b b . . . . . . . .
         . . b . . . . . . . . .
     `
-
     export function initBoard(rows: number, columns: number, preview=false) {
-        game.currentScene().allSprites = []
+        game.currentScene().allSprites=[]
         const bg = scene.backgroundImage()
         bg.fill(13)
         Rows = rows
@@ -87,6 +86,21 @@ namespace Board {
         return Rows + "," + Columns + "," + (InsertWalls ? 1 : 0)
     }
 
+    function initScore(){
+        const highScore = settings.exists(getSettingKeyOfDimension()) ? settings.readNumber(getSettingKeyOfDimension()) : 999
+        settings.writeNumber("high-score", highScore);
+        info.setLife(highScore)
+        info.setScore(0)
+        const lifeImg = image.create(26, 8)
+        lifeImg.print("BEST", 0, 0, 3)
+        info.setLifeImage(lifeImg)
+    }
+
+    function saveScore(){
+        if (!(settings.exists(getSettingKeyOfDimension()) && settings.readNumber(getSettingKeyOfDimension()) < info.score()))
+            settings.writeNumber(getSettingKeyOfDimension(), info.score())
+    }
+
     function solved(): boolean {
         let c = 1;
         for (let row = 0; row < Rows; ++row)
@@ -133,10 +147,10 @@ namespace Board {
         scene.cameraShake(5, 500);
         pause(600);
         let count = (Columns * Rows) ** 2 >> 2
-        info.setScore(0)
         while (count)
             if (randomMove())
                 --count
+        lastDirection=undefined
     }
 
     let moveInProgress: boolean = false;
@@ -145,13 +159,14 @@ namespace Board {
         if (!moveInProgress) {
             moveInProgress = true;
             if (moveDir(direction, true)) {
-                info.changeScoreBy(1)
+                if (Math.abs(lastDirection-direction)!=2)
+                    info.changeScoreBy(1)
                 if (solved()){
-                    if (!(settings.exists(getSettingKeyOfDimension()) && settings.readNumber(getSettingKeyOfDimension())>info.score()))
-                        settings.writeNumber(getSettingKeyOfDimension(), info.score());
+                    saveScore()
                     pause(100);
                     game.over(true, effects.confetti);
                 }
+                lastDirection=direction
             }
             moveInProgress = false;
         }
@@ -198,13 +213,9 @@ namespace Board {
         settings.writeNumber("Rows", Board.Rows)
         settings.writeNumber("Columns", Board.Columns)
         settings.writeNumber("Walls", Board.InsertWalls ? 1 : 0)
-        if (settings.exists(getSettingKeyOfDimension()))
-            settings.writeNumber("high-score", settings.readNumber(getSettingKeyOfDimension()));
-        else
-            settings.remove("high-score")
         initBoard(Rows, Columns)
-
-    }
+        initScore()
+      }
 
     function canMoveDir(row: number, col: number, dir: Direction): boolean {
         const offsetRow = offsetDir[dir][0]
