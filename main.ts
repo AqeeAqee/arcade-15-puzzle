@@ -1,5 +1,5 @@
 game.stats=true
-game.gameOverConfig().scoringType = game.ScoringType.LowScore
+game.setGameOverScoringType(game.ScoringType.LowScore)
 enum Direction { UP, LEFT, DOWN, RIGHT }
 
 namespace Board {
@@ -13,20 +13,7 @@ namespace Board {
     const wallsHrz: boolean[][] = []
     const wallsVrt: boolean[][] = []
     const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-    const cursor = img`
-        . . . . . . . . . b . .
-        . . . . . . . . . . b .
-        . . . . . b b b b b b b
-        . . . . . . . . . . b .
-        . . . . . . . . . b . .
-        . . b . . . . . . . . .
-        . . b . . . . . . . . .
-        . . b . . . . . . . . .
-        . . b . . . . . . . . .
-        b . b . b . . . . . . .
-        . b b b . . . . . . . .
-        . . b . . . . . . . . .
-    `
+
     export function initBoard(rows: number, columns: number, preview=false) {
         game.currentScene().allSprites=[]
         const bg = scene.backgroundImage()
@@ -42,6 +29,7 @@ namespace Board {
         const BOARD_HEIGHT = INTERVAL * Rows + GAP
         Board_Left = (screen.width - BOARD_WIDTH) >> 1
         Board_Top = (screen.height - BOARD_HEIGHT) >> 1
+        if(preview) Board_Top-=3
 
         bg.fillRect(Board_Left, Board_Top, BOARD_WIDTH, BOARD_HEIGHT, 12)
         boardCells.splice(0, boardCells.length)
@@ -66,10 +54,24 @@ namespace Board {
             bg.print("15 - Puzzle", 12, 7, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 6, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
-            bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT - 3)
-            if (Board.Rows + Board.Columns > 5)
-                bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 100,11)
-            bg.print("A: Go", 40, 110,11)
+            if (columns > 2)
+                bg.drawTransparentImage(assets.image`cursorRight`.rotated(180), Board_Left + BOARD_WIDTH + 2, Board_Top + BOARD_HEIGHT - 3)
+            if (columns < 7)
+                bg.drawTransparentImage(assets.image`cursorRight`, Board_Left + BOARD_WIDTH + 4, Board_Top + BOARD_HEIGHT - 3)
+            if (Rows > 2)
+                bg.drawTransparentImage(assets.image`cursorDown`.rotated(180), Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT + 2)
+            if (Rows < 5)
+                bg.drawTransparentImage(assets.image`cursorDown`, Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT + 4)
+            if (Board.Rows + Board.Columns > 5){
+                bg.drawTransparentImage(assets.image`imgButtonB`, 40, 96)
+                bg.print("Walls (" + (InsertWalls ? "On" : "Off") + ")", 57, 98, 11)
+            }
+            bg.drawTransparentImage(assets.image`imgButtonA`, 40, 108)
+            bg.print("Go", 56, 110, 11)
+            if(settings.exists(getSettingKeyOfDimension())){
+                bg.drawTransparentImage(assets.image`img_trophy_lg`, 130, 50)
+                bg.print(settings.readNumber(getSettingKeyOfDimension()).toString(), 130, 70)
+            }
         }
 
         emptyRow = Rows - 1
@@ -87,10 +89,10 @@ namespace Board {
     }
 
     function initScore(){
-        const highScore = settings.exists(getSettingKeyOfDimension()) ? settings.readNumber(getSettingKeyOfDimension()) : 999
+        info.setScore(0)
+        const highScore = settings.exists(getSettingKeyOfDimension()) ? settings.readNumber(getSettingKeyOfDimension()) : 9999
         settings.writeNumber("high-score", highScore);
         info.setLife(highScore)
-        info.setScore(0)
         const lifeImg = image.create(26, 8)
         lifeImg.print("BEST", 0, 0, 3)
         info.setLifeImage(lifeImg)

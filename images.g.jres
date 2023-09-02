@@ -1,0 +1,32 @@
+{
+    "image1": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAUAAAAAAAAFUAAAAABQRUREBAAAAEVVREREAAQARVVVVVUEBABFVVVVVUUFAEVVVVVVEQUARVVVVRUBAQBFVREREQABAFAVEREBAAAAAAAFUAAAAAAAAFAFAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "img_trophy_lg"
+    },
+    "image2": {
+        "data": "hwQLAAsAAAAAYGaGCAAAAGB2d2aGAAAAYHd3d2YIAAB2ERERYQgAAHZxF3dhCAAAdnEXd2EIAAB2cRd3YQgAAHYXcRFnCAAAYHd3d2YIAABgdndmhgAAAABgZoYIAAAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "imgButtonB"
+    },
+    "image3": {
+        "data": "hwQLAAsAAAAAYGaGCAAAAGB2d2aGAAAAYHd3Z2YIAAB2FxERZwgAAHZxF3dmCAAAdnEXd2YIAAB2cRd3ZggAAHYXERFnCAAAYHd3Z2YIAABgdndmhgAAAABgZoYIAAAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "imgButtonA"
+    },
+    "image4": {
+        "data": "hwQFAAcAAAAAAAsAAACwALu7uwsAALAAAAALAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "cursorDown"
+    },
+    "image5": {
+        "data": "hwQHAAUAAAAACwAAAAsAAAALAAAACwAACwsLALC7AAAACwAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "cursorRight"
+    },
+    "*": {
+        "mimeType": "image/x-mkcd-f4",
+        "dataEncoding": "base64",
+        "namespace": "myImages"
+    }
+}
