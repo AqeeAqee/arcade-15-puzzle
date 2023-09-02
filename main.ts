@@ -243,7 +243,7 @@ namespace Board {
 
     export function addWalls(n: number) {
         const bg = scene.backgroundImage()
-        while (n) {
+        while (n>0) {
             const HV = Math.percentChance(50) // true=horizontal, false=vertical
             const walls = HV ? wallsHrz : wallsVrt
             const tryRow = Math.randomRange(0, Rows - (HV ? 2 : 1))
