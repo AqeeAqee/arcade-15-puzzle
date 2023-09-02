@@ -9,14 +9,16 @@ class Tile {
     private sprite: Sprite;
     static font = image.font8
 
-    constructor(n: number, row: number, column: number) {
+    constructor(n: number, row: number, column: number, private preview = false) {
         this.sprite
         this.n = n;
         this.sprite.setPosition(Tile.calcX(column), Tile.calcY(row));
+        if(!preview){
         const frames = 5;
-        for (let i = 1; i <= frames; i++) {
-            this.sprite.setScale(i / frames)
-            pause(10);
+            for (let i = 1; i <= frames; i++) {
+                this.sprite.setScale(i / frames)
+                pause(10);
+            }
         }
         this._row = row;
         this._column = column;
@@ -32,9 +34,9 @@ class Tile {
 
     set n(n: number) {
         if (this.sprite)
-            this.sprite.setImage(Tile.createImage(n));
+            this.sprite.setImage(this.createImage(n));
         else
-            this.sprite = sprites.create(Tile.createImage(n))
+            this.sprite = sprites.create(this.createImage(n))
         this._n = n;
     }
 
@@ -60,8 +62,10 @@ class Tile {
         const toY = Tile.calcY(row);
         if (animate) {
             const steps = 8, stepX = (toX - this.sprite.x) / 8, stepY = (toY - this.sprite.y) / 8
-            for (let i = 0; i < steps; i++)
-                this.sprite.setPosition(this.sprite.x + stepX, this.sprite.y + stepY); pause(6);
+            for (let i = 0; i < steps; i++){
+                this.sprite.setPosition(this.sprite.x + stepX, this.sprite.y + stepY)
+                pause(6)
+            }
         } else
             this.sprite.setPosition(toX, toY);
         this._row = row;
@@ -80,10 +84,11 @@ class Tile {
         return Tile.colorFlip(n) ? white : black;
     }
 
-    private static createImage(n: number): Image {
+    private createImage(n: number): Image {
         const img = image.create(TILE_SIZE, TILE_SIZE);
         img.fill(Tile.bgColorFor(n));
-        img.printCenter(n.toString(), (img.height - Tile.font.charHeight) >> 1, Tile.textColorFor(n), Tile.font)
+        if(!this.preview)
+            img.printCenter(n.toString(), (img.height - Tile.font.charHeight) >> 1, Tile.textColorFor(n), Tile.font)
         return img;
     }
 }

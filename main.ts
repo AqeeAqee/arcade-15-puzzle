@@ -1,41 +1,74 @@
+game.stats=true
+
 enum Direction { UP, LEFT, DOWN, RIGHT }
-const bg = scene.backgroundImage()
 let Board_Left = 0, Board_Top = 0
-let GAP = 3, TILE_SIZE = 24
+let GAP = 2, TILE_SIZE = 10
 let INTERVAL = 0
+let InsertWalls=false
 
 namespace Board {
-    export let Rows = 0, Columns = 0
+    export let Rows = 3, Columns = 4
     let emptyRow = 0, emptyCol = 0
     const boardCells: Tile[][] = [];
     const wallsHrz: boolean[][] = []
     const wallsVrt: boolean[][] = []
     const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+    const cursor = img`
+        . . . . . . . . . B . .
+        . . . . . . . . B B B .
+        . . . . . . . B . B . B
+        . . . . . . . . . B . .
+        . . . . . . . . . B . .
+        . . . . . . . B . B . B
+        . . . . . . . . B B B .
+        . . B . . B . . . B . .
+        . B . . . . B . . . . .
+        B B B B B B B B . . . .
+        . B . . . . B . . . . .
+        . . B . . B . . . . . .
+    `
 
-    export function initBoard(rows: number, columns: number) {
+    export function initBoard(rows: number, columns: number, preview=false) {
+        game.currentScene().allSprites = []
+        const bg = scene.backgroundImage()
+        bg.fill(13)
         Rows = rows
         Columns = columns
-        if (Rows > 4 || Columns > 5) TILE_SIZE -= 4
+        if(!preview){
+            GAP = 3
+            TILE_SIZE = (Rows > 4 || Columns > 5) ? 20 : 24
+        }
         INTERVAL = GAP + TILE_SIZE
         const BOARD_WIDTH = INTERVAL * Columns + GAP
         const BOARD_HEIGHT = INTERVAL * Rows + GAP
         Board_Left = (screen.width - BOARD_WIDTH) >> 1
         Board_Top = (screen.height - BOARD_HEIGHT) >> 1
 
-        bg.fill(13)
         bg.fillRect(Board_Left, Board_Top, BOARD_WIDTH, BOARD_HEIGHT, 12)
+        boardCells.splice(0, boardCells.length)
         for (let i = 0, n = 1; i < Rows; i++) {
-            boardCells.push([])
-            wallsHrz.push([])
-            wallsVrt.push([])
+                boardCells.push([])
+            if (!preview){
+                wallsHrz.push([])
+                wallsVrt.push([])
+            }
             for (let j = 0; j < Columns; j++) {
                 bg.fillRect(Board_Left + GAP + j * INTERVAL, Board_Top + GAP + i * INTERVAL, TILE_SIZE, TILE_SIZE, 15)
-                if (n != (Columns * Rows))
-                    boardCells[i][j] = new Tile(n++, i, j);
-                wallsHrz[i].push(false)
-                wallsVrt[i].push(false)
+                    if (n != (Columns * Rows))
+                        boardCells[i][j] = new Tile(n++, i, j, preview);
+                if (!preview) {
+                    wallsHrz[i].push(false)
+                    wallsVrt[i].push(false)
+                }
             }
         }
+        if (preview){
+            bg.print("15 - Puzzle", 12, 6, 11, image.doubledFont(image.font8))
+            bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
+            bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 5, Board_Top + BOARD_HEIGHT - 5)
+            bg.print("B: walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 98,11)
+            bg.print("A: Go", 40, 108,11)
+        } 
 
         emptyRow = Rows - 1
         emptyCol = Columns - 1;
@@ -111,7 +144,7 @@ namespace Board {
         }
     }
 
-    export function chooseDimension() {
+    export function chooseDimension_menu() {
         let menuDone = false
         let myMenu = miniMenu.createMenu(
             miniMenu.createMenuItem("  2 x 3  "),
@@ -136,6 +169,51 @@ namespace Board {
             menuDone = true
         })
         pauseUntil(() => menuDone)
+    }
+
+    export function chooseDimension() {
+        // controller._setUserEventsEnabled(false);
+        game.pushScene();
+        let menuDone = false
+
+        initBoard(Rows, Columns, true)
+
+        let pressed = true;
+        game.onUpdate(() => {
+            const currentState = controller.A.isPressed();
+            if (currentState && !pressed) {
+                pressed = true;
+                scene.setBackgroundImage(null); // GC it
+                game.popScene();
+                initBoard(Rows, Columns)
+                menuDone = true;
+            }
+            else if (pressed && !currentState) {
+                pressed = false;
+            }
+        })
+
+        controller.anyButton.onEvent(ControllerButtonEvent.Pressed, () => {
+            if (controller.up.isPressed() && Rows > 2)
+                Rows--
+            if (controller.down.isPressed() && Rows < 5)
+                Rows++
+            if (controller.left.isPressed() && Columns > 2)
+                Columns--
+            if (controller.right.isPressed() && Columns < 7)
+                Columns++
+            if (controller.B.isPressed() && Columns < 7)
+                InsertWalls=!InsertWalls
+
+            if (!controller.A.isPressed()){
+                initBoard(Rows, Columns, true )
+            }
+        })
+
+
+
+        pauseUntil(() => menuDone)
+        // controller._setUserEventsEnabled(true);
     }
 
     function canMoveDir(row: number, col: number, dir: Direction): boolean {
@@ -164,6 +242,7 @@ namespace Board {
     }
 
     export function addWalls(n: number) {
+        const bg = scene.backgroundImage()
         while (n) {
             const HV = Math.percentChance(50) // true=horizontal, false=vertical
             const walls = HV ? wallsHrz : wallsVrt
@@ -186,7 +265,8 @@ namespace Board {
 }
 
 Board.chooseDimension()
-Board.addWalls(Board.Rows + Board.Columns - 5)
+if(InsertWalls)
+    Board.addWalls(Board.Rows + Board.Columns - 5)
 Board.shuffle()
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
