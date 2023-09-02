@@ -15,8 +15,8 @@ class Tile {
         this.sprite.setPosition(Tile.calcX(column), Tile.calcY(row));
         const frames = 5;
         for (let i = 1; i <= frames; i++) {
-            this.sprite.setScale(i/frames)
-            pause(15);
+            this.sprite.setScale(i / frames)
+            pause(10);
         }
         this._row = row;
         this._column = column;
@@ -27,11 +27,11 @@ class Tile {
     }
 
     public static calcY(row: number): number {
-        return Board_Top + GAP + TILE_SIZE / 2 + row *  (TILE_SIZE + GAP);
+        return Board_Top + GAP + TILE_SIZE / 2 + row * (TILE_SIZE + GAP);
     }
 
     set n(n: number) {
-        if(this.sprite)
+        if (this.sprite)
             this.sprite.setImage(Tile.createImage(n));
         else
             this.sprite = sprites.create(Tile.createImage(n))
@@ -45,7 +45,7 @@ class Tile {
     get row(): number {
         return this._row;
     }
-    
+
     get column(): number {
         return this._column;
     }
@@ -59,21 +59,17 @@ class Tile {
         const toX = Tile.calcX(column);
         const toY = Tile.calcY(row);
         if (animate) {
-            const pauseMs = 2
             const steps = 8, stepX = (toX - this.sprite.x) / 8, stepY = (toY - this.sprite.y) / 8
-            for (let i=0; i < steps;i++) {
-                this.sprite.setPosition(this.sprite.x+stepX, this.sprite.y+stepY)
-                pause(pauseMs);
-            }
-        } else {
+            for (let i = 0; i < steps; i++)
+                this.sprite.setPosition(this.sprite.x + stepX, this.sprite.y + stepY); pause(6);
+        } else
             this.sprite.setPosition(toX, toY);
-        }
         this._row = row;
         this._column = column;
     }
 
-    private static colorFlip(n:number){
-        return (((n-1) % Board.Columns + (n-1) / Board.Columns)|0) % 2 === 1
+    private static colorFlip(n: number) {
+        return (((n - 1) % Board.Columns + (n - 1) / Board.Columns) | 0) % 2 === 1
     }
 
     private static bgColorFor(n: number): number {

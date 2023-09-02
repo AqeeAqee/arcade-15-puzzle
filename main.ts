@@ -12,9 +12,9 @@ namespace Board {
     const wallsVrt: boolean[][] = []
     const offsetDir = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
-    export function initBoard(rows:number, columns:number) {
-        Rows=rows
-        Columns=columns
+    export function initBoard(rows: number, columns: number) {
+        Rows = rows
+        Columns = columns
         if (Rows > 4 || Columns > 5) TILE_SIZE -= 4
         INTERVAL = GAP + TILE_SIZE
         const BOARD_WIDTH = INTERVAL * Columns + GAP
@@ -59,7 +59,7 @@ namespace Board {
     }
 
     function moveDir(direction: Direction, animate: boolean): boolean {
-        if(!canMoveDir(emptyRow,emptyCol, direction)) return false
+        if (!canMoveDir(emptyRow, emptyCol, direction)) return false
         const offsetRow = offsetDir[direction][0]
         const offsetCol = offsetDir[direction][1]
         const tile = get(emptyRow + offsetRow, emptyCol + offsetCol)
@@ -128,17 +128,17 @@ namespace Board {
         )
         myMenu.title = miniMenu.createMenuItem("15 Puzzle")
         myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 110)
-        myMenu.y=60
+        myMenu.y = 60
         myMenu.onButtonPressed(controller.A, (itemTitle, i) => {
-            const dimension = itemTitle.split("x")
             myMenu.close()
+            const dimension = itemTitle.split("x")
             initBoard(parseInt(dimension[0]), parseInt(dimension[1]))
             menuDone = true
         })
         pauseUntil(() => menuDone)
     }
 
-    function canMoveDir(row:number,col:number, dir:Direction):boolean{
+    function canMoveDir(row: number, col: number, dir: Direction): boolean {
         const offsetRow = offsetDir[dir][0]
         const offsetCol = offsetDir[dir][1]
         const targetRow = row + offsetRow
@@ -155,8 +155,8 @@ namespace Board {
         return true
     }
 
-    function countMovableDirections(row: number, col: number){
-        let count=0
+    function countMovableDirections(row: number, col: number) {
+        let count = 0
         for (let dir = 0; dir < 4; dir++)
             if (canMoveDir(row, col, dir))
                 count++
@@ -186,7 +186,6 @@ namespace Board {
 }
 
 Board.chooseDimension()
-// Board.addWalls(Math.idiv(Board.Rows + Board.Columns - 4, 2))
 Board.addWalls(Board.Rows + Board.Columns - 5)
 Board.shuffle()
 
