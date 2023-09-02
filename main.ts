@@ -66,7 +66,8 @@ namespace Board {
             bg.print("15 - Puzzle", 12, 6, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
             bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT - 3)
-            bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 100,11)
+            if (Board.Rows + Board.Columns > 5)
+                bg.print("B: Walls (" + (InsertWalls ? "On" : "Off") + ")", 40, 100,11)
             bg.print("A: Go", 40, 110,11)
         }
 
