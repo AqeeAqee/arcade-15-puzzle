@@ -1,5 +1,5 @@
 game.stats=true
-
+game.gameOverConfig().scoringType = game.ScoringType.LowScore
 enum Direction { UP, LEFT, DOWN, RIGHT }
 
 namespace Board {
@@ -64,6 +64,8 @@ namespace Board {
         }
         if (preview){
             bg.print("15 - Puzzle", 12, 6, 11, image.doubledFont(image.font8))
+            bg.print("15 - Puzzle", 12, 7, 11, image.doubledFont(image.font8))
+            bg.print("15 - Puzzle", 13, 6, 11, image.doubledFont(image.font8))
             bg.print("15 - Puzzle", 13, 7, 5, image.doubledFont(image.font8))
             bg.drawTransparentImage(cursor, Board_Left + BOARD_WIDTH - 3, Board_Top + BOARD_HEIGHT - 3)
             if (Board.Rows + Board.Columns > 5)
@@ -79,6 +81,10 @@ namespace Board {
         return (0 <= row && row < Rows && 0 <= col && col < Columns) ?
             boardCells[row][col] :
             null
+    }
+
+    function getSettingKeyOfDimension():string{
+        return Rows + "," + Columns + "," + (InsertWalls ? 1 : 0)
     }
 
     function solved(): boolean {
@@ -127,6 +133,7 @@ namespace Board {
         scene.cameraShake(5, 500);
         pause(600);
         let count = (Columns * Rows) ** 2 >> 2
+        info.setScore(0)
         while (count)
             if (randomMove())
                 --count
@@ -137,9 +144,14 @@ namespace Board {
         // The move must be finished, before another move can start
         if (!moveInProgress) {
             moveInProgress = true;
-            if (moveDir(direction, true) && solved()) {
-                pause(100);
-                game.over(true, effects.confetti);
+            if (moveDir(direction, true)) {
+                info.changeScoreBy(1)
+                if (solved()){
+                    if (!(settings.exists(getSettingKeyOfDimension()) && settings.readNumber(getSettingKeyOfDimension())>info.score()))
+                        settings.writeNumber(getSettingKeyOfDimension(), info.score());
+                    pause(100);
+                    game.over(true, effects.confetti);
+                }
             }
             moveInProgress = false;
         }
@@ -186,6 +198,10 @@ namespace Board {
         settings.writeNumber("Rows", Board.Rows)
         settings.writeNumber("Columns", Board.Columns)
         settings.writeNumber("Walls", Board.InsertWalls ? 1 : 0)
+        if (settings.exists(getSettingKeyOfDimension()))
+            settings.writeNumber("high-score", settings.readNumber(getSettingKeyOfDimension()));
+        else
+            settings.remove("high-score")
         initBoard(Rows, Columns)
 
     }
