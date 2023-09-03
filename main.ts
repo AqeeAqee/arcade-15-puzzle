@@ -70,7 +70,8 @@ namespace Board {
             bg.print("Go", 56, 110, 11)
             if(settings.exists(getSettingKeyOfDimension())){
                 bg.drawTransparentImage(assets.image`img_trophy_lg`, 130, 50)
-                bg.print(settings.readNumber(getSettingKeyOfDimension()).toString(), 130, 70)
+                const score = settings.readNumber(getSettingKeyOfDimension()).toString()
+                bg.print(score, 136 - (score.length<<1), 70)
             }
         }
 
